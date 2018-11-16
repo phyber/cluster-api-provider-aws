@@ -14,6 +14,8 @@
 package cluster
 
 import (
+	"time"
+
 	"github.com/pkg/errors"
 	"k8s.io/klog"
 	providerv1 "sigs.k8s.io/cluster-api-provider-aws/pkg/apis/awsprovider/v1alpha1"
@@ -55,7 +57,7 @@ func NewActuator(params ActuatorParams) *Actuator {
 }
 
 // Reconcile reconciles a cluster and is invoked by the Cluster Controller
-func (a *Actuator) Reconcile(cluster *clusterv1.Cluster) (reterr error) {
+func (a *Actuator) Reconcile(cluster *clusterv1.Cluster) error {
 	klog.Infof("Reconciling cluster %v.", cluster.Name)
 
 	// Load provider config.
@@ -156,7 +158,7 @@ func (a *Actuator) Delete(cluster *clusterv1.Cluster) error {
 	if err := ec2.DeleteNetwork(cluster.Name, &status.Network); err != nil {
 		klog.Errorf("Error deleting cluster %v: %v.", cluster.Name, err)
 		return &controllerError.RequeueAfterError{
-			RequeueAfter: 5 * 1000 * 1000 * 1000,
+			RequeueAfter: 5 * time.Second,
 		}
 	}
 
